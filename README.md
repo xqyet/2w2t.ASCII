@@ -18,6 +18,10 @@
 
 5. Allow clipboard (or paste into the prompt). It will “type” your text.
 
+   <p align="center">
+  <img src="example.png" alt="Example">
+</p>
+
    ```
    (() => {
     const sleep = ms => new Promise(r => setTimeout(r, ms));
