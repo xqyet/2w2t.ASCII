@@ -1,7 +1,10 @@
-# ASCII Scripting Tool for 2w2t! 
+#  <p align="center"> ASCII Scripting Tool for 2w2t! </p>
 
-Type multi-line text into 2w2t
- directly from your clipboard using only the browser console—no extensions required.
+<p align="center"> Type multi-line text into 2w2t directly from your clipboard using only the browser console—no extensions required.</p>
+
+<p align="center">
+  <img src="zero-two.gif" alt="Zero Two">
+</p>
 
 ## How to use
 
