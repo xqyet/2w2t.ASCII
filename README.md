@@ -8,7 +8,7 @@
 
 ## How to use
 
-1. Open your site (2w2t).
+1. Open [www.2w2t.org](https://2w2t.org/)
 
 2. Press F12 → Console.
 
@@ -16,7 +16,7 @@
 
 4. Click the start cell (outside the gray plaza).
 
-5. Allow clipboard (or paste into the prompt). It will “type” your text.
+5. Allow clipboard (or paste into the prompt). It will being pasting your ASCII Art line by line starting from the top.
 
    <p align="center">
   <img src="example.png" alt="Example">
