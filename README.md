@@ -22,7 +22,7 @@
   <img src="example.png" alt="Example">
 </p>
 
-   ```
+   ```js
    (() => {
     const sleep = ms => new Promise(r => setTimeout(r, ms));
   
