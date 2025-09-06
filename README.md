@@ -1,6 +1,6 @@
 #  <p align="center"> ASCII Scripting Tool for 2w2t! </p>
 
-<p align="center"> Automatically paste art line by line into 2w2t directly from your clipboard using only the browser console—no extensions required.</p>
+<p align="center"> Automatically paste your art line by line into 2w2t directly from your clipboard using only the browser console - no extensions required.</p>
 
 <p align="center">
   <img src="zero-two.gif" alt="Zero Two">
@@ -16,7 +16,7 @@
 
 4. Click the start cell (outside the gray plaza).
 
-5. Allow clipboard (or paste into the prompt). It will being pasting your ASCII Art line by line starting from the top.
+5. It will being pasting your ASCII Art line by line starting from the top. Enjoy!
 
    <p align="center">
   <img src="example.png" alt="Example">
