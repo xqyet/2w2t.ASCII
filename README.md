@@ -16,7 +16,7 @@
 
 4. Click the start cell (outside the gray plaza).
 
-5. It will being pasting your ASCII Art line by line starting from the top. Enjoy!
+5. It will begin pasting your ASCII Art line by line starting from the top. Enjoy!
 
    <p align="center">
   <img src="example.png" alt="Example">
