@@ -1,0 +1,116 @@
+(() => {
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  async function readClipboardOrPrompt() {
+    try { const t = await navigator.clipboard.readText(); if (t?.trim()) return t; } catch {}
+    return prompt('Paste your text here:') || '';
+  }
+
+  function keydown(key) {
+    const code =
+      /^[a-z]$/i.test(key) ? `Key${key.toUpperCase()}`
+      : key === ' ' ? 'Space'
+      : key.startsWith('Arrow') ? key
+      : key === 'Enter' ? 'Enter'
+      : 'Unidentified';
+    window.dispatchEvent(new KeyboardEvent('keydown', { key, code, bubbles:true, cancelable:true }));
+  }
+  const pressUp   = () => keydown('ArrowUp');
+  const pressLeft = () => keydown('ArrowLeft');
+
+  function waitForCanvasClick(timeoutMs=10000){
+    const cv = document.querySelector('canvas');
+    if (!cv) return Promise.resolve();
+    console.log('Click the cell where the BOTTOM line should start…');
+    return new Promise(res => {
+      let done=false; const on=()=>{ if(done) return; done=true; cv.removeEventListener('click',on,true); res(); };
+      cv.addEventListener('click',on,true);
+      setTimeout(()=>{ if(!done){ cv.removeEventListener('click',on,true); res(); } }, timeoutMs);
+    });
+  }
+
+  // pacing
+  const PER_CHAR_MS = 54;
+  const STEP_MS     = 64;
+  const BURST_N     = 180;
+  const BURST_MS    = 160;
+
+  let stop = false;
+  const stopHandler = e => { if (e.key === 'Escape') { stop = true; console.log('Stopping…'); } };
+  window.addEventListener('keydown', stopHandler);
+
+  async function typeLineLTR(str) {
+    let burst = 0;
+    for (const ch of Array.from(str)) {
+      if (stop) return false;
+      keydown(ch);
+      await sleep(PER_CHAR_MS);
+      if (++burst >= BURST_N) { await sleep(BURST_MS); burst = 0; }
+    }
+    return true;
+  }
+
+  // Type a line right→left with correct caret handling:
+  // Before the first char we are at col = str.length (coming from LTR then ArrowUp),
+  // so we pre-move one Left to col = str.length-1.
+  async function typeLineRTL(str, preLeft = true) {
+    let burst = 0;
+    if (preLeft) { pressLeft(); await sleep(STEP_MS); }
+    const arr = Array.from(str);
+    for (let i = arr.length - 1; i >= 0; i--) {
+      if (stop) return false;
+      keydown(arr[i]);                         // place char
+      await sleep(PER_CHAR_MS);
+      if (i > 0) {                             // move caret one cell *before* next target
+        pressLeft(); await sleep(STEP_MS);
+        pressLeft(); await sleep(STEP_MS);
+      }
+      if (++burst >= BURST_N) { await sleep(BURST_MS); burst = 0; }
+    }
+    return true;
+  }
+
+  // Type one whole block bottom→top, alternating direction per line.
+  async function typeBlockSerpentine(lines) {
+    // start with LTR on the bottom line
+    let ltr = true;
+    for (let li = lines.length - 1; li >= 0; li--) {
+      const line = lines[li];
+
+      const ok = ltr ? await typeLineLTR(line)
+                     : await typeLineRTL(line, /*preLeft*/ true);
+      if (!ok) return false;
+
+      if (li > 0) {             // move up to the next line above
+        pressUp(); await sleep(STEP_MS);
+      }
+      ltr = !ltr;                // flip direction for next line
+    }
+    return true;
+  }
+
+  (async () => {
+    await waitForCanvasClick();
+    await sleep(40);
+
+    let text = await readClipboardOrPrompt();
+    if (!text) return console.log('No text.');
+    text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').replace(/\t/g,'  ');
+    const lines = text.split('\n');
+
+    console.log('Typing bottom→top (serpentine). Press ESC to stop.');
+    let loops = 0;
+    while (!stop) {
+      const ok = await typeBlockSerpentine(lines);
+      if (!ok) break;
+
+      // stack the next copy immediately ABOVE the block
+      pressUp(); await sleep(STEP_MS);
+
+      loops++;
+      if (loops % 10 === 0) console.log(`Completed ${loops} repeats…`);
+    }
+    window.removeEventListener('keydown', stopHandler);
+    console.log(`Stopped after ${loops} repeats.`);
+  })();
+})();
