@@ -14,7 +14,7 @@
   }
 
   // Local clamp (hidden from users — just a big safe limit)
-  const MAX = 10000000; // units (~matches your app’s safe range without revealing chars)
+  const MAX = 100000000; // units (~matches your app’s safe range without revealing chars)
   const clamp = n => Math.max(-MAX, Math.min(MAX, Math.trunc(n)));
 
   const xClamped = clamp(coord[0]);
