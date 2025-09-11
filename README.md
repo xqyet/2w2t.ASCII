@@ -21,7 +21,9 @@
    <p align="center">
   <img src="example.png" alt="Example">
 </p>
+
 <a id="ascii-script"></a>
+
 # ASCII Art Pasting Script
 
    ```js
