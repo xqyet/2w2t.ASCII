@@ -13,14 +13,14 @@
     return;
   }
 
-  const MAX = 100000000000; // I have a loose limit server side, so changing this value won't do anything. But it should be easy to bypass if you'd like to go even further :)
+  const MAX = 1000000000000; // I have a loose limit server side, so changing this value won't do anything. But it should be easy to bypass if you'd like to go even further :)
   const clamp = n => Math.max(-MAX, Math.min(MAX, Math.trunc(n)));
 
   const xClamped = clamp(coord[0]);
   const yClamped = clamp(coord[1]);
 
   if (xClamped !== coord[0] || yClamped !== coord[1]) {
-    alert("You can continue to scroll infinitely, but I've added a limit of 100 billion to this public teleport script to keep my database happy :)");
+    alert("You can continue to scroll infinitely, but I've added a limit of 1 trillion to this public teleport script to keep my database happy :)");
   }
 
   window.tw2tTeleport({
