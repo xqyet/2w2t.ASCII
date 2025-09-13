@@ -124,7 +124,7 @@
   const yClamped = clamp(coord[1]);
 
   if (xClamped !== coord[0] || yClamped !== coord[1]) {
-    alert("You can continue to scroll infinitely, but I've added a limit of 1 trillion to this public teleport script to keep my database happy :)");
+    alert("You can continue to scroll infinitely, but I've added a limit of 1 trillion to this public teleport script to keep your browser happy :) loading ~too many~ tiles at once can sometimes be too much for your browser to handle (and it will crash)");
   }
 
   window.tw2tTeleport({
