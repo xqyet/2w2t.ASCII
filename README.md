@@ -102,7 +102,7 @@
 <a id="teleport-script"></a>
 # Teleport Script 
 > [!NOTE]
-> Teleporting more than 1 trillion tiles at once in any direction can often cause your browser to crash. If you want to go absurdly far out to build, do it in 500 to 900 million increments. The furthest I have personally gone is over 1 quadrillion, but at a certain insane number even the tiles will begin to glitch before the webpage completely crashes. Enjoy and happy building!
+> Teleporting more than 1 trillion tiles at once in any direction can often cause your browser to crash. If you want to go absurdly far out to build, do it in 500 to 900 million increments. The furthest I have personally gone is over 1 quadrillion, but at a certain insane number even the tiles will begin to glitch before the webpage completely crashes. Enjoy!
 ```js
    (() => {
   if (typeof window.tw2tTeleport !== 'function') {
