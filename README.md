@@ -24,7 +24,7 @@
 
 <a id="ascii-script"></a>
 
-# ASCII Art Pasting Script
+# ASCII Art Pasting Script (no color)
 
    ```js
    (() => {
@@ -97,6 +97,148 @@
   
     run();
    })();
+    
+```
+# ASCII Art Pasting Script (for pasting multi-color)
+
+   ```js
+   (() => {
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  // --- HTML -> [{ch,color}] or '\n'
+  const BLOCKS = new Set(['DIV','P','PRE','SECTION','ARTICLE','H1','H2','H3','H4','H5','H6','UL','OL','LI']);
+  function flatten(node, inherited, out){
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node;
+      const color = el.style?.color || (el.hasAttribute('color') ? el.getAttribute('color') : inherited);
+      const isBlock = BLOCKS.has(el.tagName);
+      if (el.tagName === 'BR') { out.push('\n'); return; }
+      if (isBlock && out.length && out[out.length-1] !== '\n') out.push('\n');
+      for (const c of Array.from(el.childNodes)) flatten(c, color, out);
+      if (isBlock && out.length && out[out.length-1] !== '\n') out.push('\n');
+      return;
+    }
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = (node.textContent || '').replace(/\u00A0/g,' ');
+      for (const ch of Array.from(text)) out.push({ ch, color: inherited });
+    }
+  }
+  function htmlToStream(html){
+    const div = document.createElement('div'); div.innerHTML = html;
+    const out = []; for (const c of Array.from(div.childNodes)) flatten(c, undefined, out);
+    while (out[0] === '\n') out.shift();
+    while (out[out.length-1] === '\n') out.pop();
+    return out;
+  }
+
+  // --- ANSI -> [{ch,color}] or '\n'
+  const BASE=['#000','#800000','#008000','#808000','#000080','#800080','#008080','#c0c0c0'];
+  const BRIGHT=['#808080','#ff0000','#00ff00','#ffff00','#0000ff','#ff00ff','#00ffff','#ffffff'];
+  const STEPS=[0,95,135,175,215,255];
+  const idx256 = (n) => n<=7?BASE[n]:n<=15?BRIGHT[n-8]:
+    n<=231?((i=n-16,r=STEPS[(i/36|0)%6],g=STEPS[(i/6|0)%6],b=STEPS[i%6],`rgb(${r},${g},${b})`)):
+    n<=255?((v=8+10*(n-232)),`rgb(${v},${v},${v})`):undefined;
+  function sgrToColor(codes){
+    let color;
+    for (let i=0;i<codes.length;i++){
+      const c=codes[i];
+      if (c===0||c===39) color=undefined;
+      else if (c>=30&&c<=37) color=BASE[c-30];
+      else if (c>=90&&c<=97) color=BRIGHT[c-90];
+      else if (c===38){
+        const mode=c[++i];
+        if (mode===2){ const r=c[++i],g=c[++i],b=c[++i]; if ([r,g,b].every(Number.isFinite)) color=`rgb(${r},${g},${b})`; }
+        else if (mode===5){ const n=c[++i]; const col=idx256(n); if (col) color=col; }
+      }
+    }
+    return color;
+  }
+  function ansiToStream(text){
+    const out=[]; let i=0, cur;
+    while(i<text.length){
+      const ch=text[i];
+      if (ch=== '\r'){ i++; continue; }
+      if (ch=== '\n'){ out.push('\n'); i++; continue; }
+      if (ch=== '\x1b' && text[i+1]==='['){
+        i+=2; let seq=''; while(i<text.length && text[i]!=='m') seq+=text[i++]; if (text[i]==='m') i++;
+        const codes=seq.split(';').map(n=>parseInt(n,10)).filter(n=>!Number.isNaN(n));
+        cur=sgrToColor(codes); continue;
+      }
+      out.push({ ch, color: cur }); i++;
+    }
+    return out;
+  }
+
+  function keydown(key) {
+    const ev = new KeyboardEvent('keydown', {
+      key, code: key==='Enter' ? 'Enter' : (/^[a-z]$/i.test(key) ? `Key${key.toUpperCase()}` : 'Unidentified'),
+      bubbles: true, cancelable: true
+    });
+    window.dispatchEvent(ev);
+  }
+  const pressEnter = () => keydown('Enter');
+
+  const cv = document.querySelector('canvas');
+  if (!cv) { console.warn('No <canvas> found.'); return; }
+  console.log('Click the canvas where you want the art to start…');
+
+  const onClick = (e) => {
+    window.removeEventListener('click', onClick, true);
+
+    let htmlPromise, textPromise;
+    try {
+      if (navigator.clipboard?.read) htmlPromise = navigator.clipboard.read();
+      textPromise = navigator.clipboard?.readText ? navigator.clipboard.readText() : Promise.resolve('');
+    } catch {}
+
+    Promise.resolve(htmlPromise).then(async (items) => {
+      let html = '';
+      if (items && items.length) {
+        for (const it of items) {
+          try {
+            if (it.types.includes('text/html')) {
+              const blob = await it.getType('text/html');
+              html = await blob.text();
+              break;
+            }
+          } catch {}
+        }
+      }
+      const text = await Promise.resolve(textPromise).catch(() => '');
+      let stream = [];
+      if (html) stream = htmlToStream(html);
+      else if (text) stream = ansiToStream(text.replace(/\r\n/g,'\n').replace(/\r/g,'\n'));
+      else { console.log('Nothing on clipboard.'); return; }
+
+      const PER_CHAR_MS=10, ENTER_MS=6, BURST_N=240, BURST_MS=120;
+      let burst=0;
+      for (const tok of stream){
+        if (tok === '\n'){ pressEnter(); await sleep(ENTER_MS); continue; }
+        const { ch, color } = tok;
+        if (typeof window.tw2tWriteChar === 'function') {
+          window.tw2tWriteChar(ch, color);
+        } else {
+          keydown(ch);
+        }
+        await sleep(PER_CHAR_MS);
+        if (++burst>=BURST_N){ await sleep(BURST_MS); burst=0; }
+      }
+      console.log('Done.');
+    }).catch(err => {
+      console.warn('Clipboard read blocked (needs HTTPS + user gesture). Falling back to plain text.', err);
+      // plaintext fallback (the copy button on some sites will have plain text only on the clipboard (no HTML / no ANSI) - so copy the chars directly!)
+      Promise.resolve(navigator.clipboard?.readText?.()).then(async (text='')=>{
+        const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+        for (let i=0;i<lines.length;i++){
+          for (const ch of Array.from(lines[i])) { keydown(ch); await sleep(10); }
+          if (i<lines.length-1){ pressEnter(); await sleep(6); }
+        }
+      });
+    });
+  };
+
+  window.addEventListener('click', onClick, { capture: true, once: true });
+})();
     
 ```
 <a id="teleport-script"></a>
