@@ -12,7 +12,7 @@
 
 2. Press F12 → Console.
 
-3. Paste this script → Enter.
+3. Paste a script below → Enter.
 
 4. Click the start cell (outside the gray plaza).
 
@@ -100,6 +100,7 @@
     
 ```
 # ASCII Art Pasting Script (for pasting multi-color)
+I convert art to color ASCII using [this site](https://folge.me/tools/image-to-ascii)
 
    ```js
    (() => {
