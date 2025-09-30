@@ -100,7 +100,7 @@
     
 ```
 # ASCII Art Pasting Script (for pasting multi-color)
-I convert art to color ASCII using [this site](https://folge.me/tools/image-to-ascii) - DO NOT PRESS THE COPY BUTTON! You will lose all formatting and it will paste in a straight line
+I convert art to color ASCII using [this site](https://folge.me/tools/image-to-ascii) - DO NOT PRESS THE COPY BUTTON! You will lose all formatting and it will paste in a straight line. Make sure to highlight your art and then copy :)
 
    ```js
    (() => {
