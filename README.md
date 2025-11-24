@@ -25,6 +25,7 @@
 <a id="ascii-script"></a>
 
 # ASCII Art Pasting Script (no color)
+[good site for braille](https://lachlanarthur.github.io/Braille-ASCII-Art/)
 
    ```js
    (() => {
