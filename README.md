@@ -213,10 +213,10 @@ const onClick = (e) => {
         else { console.log('Nothing on clipboard.'); return; }
 
         // --- SPEED SETTINGS (tweak if you get any 409 errors)
-        const PER_CHAR_MS = 40;      // <- originally 10
-        const ENTER_MS    = 25;      // <- originally 6
-        const BURST_N     = 120;     // <- half the previous 240
-        const BURST_MS    = 300;     // <- previously 120
+        const PER_CHAR_MS = 40;      
+        const ENTER_MS    = 25;      
+        const BURST_N     = 120;     
+        const BURST_MS    = 300;     
 
         let burst=0;
         for (const tok of stream){
